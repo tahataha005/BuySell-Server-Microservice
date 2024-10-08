@@ -58,7 +58,10 @@ export type OnlineUser = {
 export const authenticateUser = async (socket: Socket) => {
   const token = socket.handshake.auth.token;
 
-  const { id }: any = await verifyToken(token);
+  console.log(token);
+
+  const payload: any = await verifyToken(token);
+  const id = payload.sub ?? payload.id;
 
   const isOnline = onlineUsers.some((user) => user.id === id);
 
@@ -69,6 +72,13 @@ export const authenticateUser = async (socket: Socket) => {
   console.log("User Joined", onlineUsers);
 
   io.emit("online", onlineUsers);
+  socket.on("error", (error) => {
+    console.error("Socket error:", error);
+  });
+
+  socket.on("disconnect", (reason) => {
+    console.log("Client disconnected", reason);
+  });
 };
 
 export const disconnectUser = async (socket: Socket) => {

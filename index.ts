@@ -24,9 +24,9 @@ app.get("/token/:id", async (req, res) => {
 const server = createServer(app);
 
 const service = messagesConnection(server, {
-  port: 3000,
+  port: 3001,
   route: "/messages",
-  timeout: 10000,
+  timeout: 50000,
 });
 
 service.onSendMessage((message, room) => {
