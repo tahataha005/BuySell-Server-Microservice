@@ -2,8 +2,11 @@ import messagesConnection from "./socket/socket";
 import { createServer } from "http";
 import Express from "express";
 import cors from "cors";
-import { sign } from "jsonwebtoken";
 import { saveMessage } from "./controllers/chat.controller";
+
+import authRoutes from "./routes/auth.routes";
+import chatsRoutes from "./routes/chats.routes";
+import { authMiddleware } from "./middlewares/auth.middleware";
 
 const app = Express();
 
@@ -13,14 +16,9 @@ app.use(
   })
 );
 
-app.get("/token/:id", async (req, res) => {
-  const token = await sign(
-    { id: req.params.id, name: "John" },
-    process.env.JWT_SECRET!
-  );
-
-  res.send({ token });
-});
+app.use(Express.json());
+app.use(authRoutes);
+app.use(authMiddleware, chatsRoutes);
 
 const server = createServer(app);
 

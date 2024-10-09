@@ -199,8 +199,9 @@ model users {
   password_reset_tokens password_reset_tokens?
   user_statuses         user_statuses          @relation(fields: [status_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "users_status_id_foreign")
   usertypes             usertypes              @relation(fields: [usertype_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "users_usertype_id_foreign")
-  chats                chats[]
-  messages             chat_messages[]
+  messages              chat_messages[]
+  sender_chats          chats[]                 @relation("sender")
+  reciever_chats        chats[]                 @relation("reciever")
 }
 
 model usertypes {
@@ -211,8 +212,10 @@ model usertypes {
 
 model chats {
   id        BigInt   @id @default(autoincrement())
-  name      String
-  users     users[]
+  sender    users?     @relation("sender", fields: [senderId], references: [id])
+  senderId  BigInt?
+  reciever  users?     @relation("reciever", fields: [recieverId], references: [id])
+  recieverId BigInt?
   messages  chat_messages[]
   productId String
 }

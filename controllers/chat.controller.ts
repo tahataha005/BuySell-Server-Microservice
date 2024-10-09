@@ -1,3 +1,4 @@
+import type { Request, Response } from "express";
 import { Chat, Message } from "../prisma/client";
 
 export const saveMessage = async (message, payload) => {
@@ -20,4 +21,17 @@ export const saveMessage = async (message, payload) => {
       userId: user,
     },
   });
+};
+
+export const getUserChats = (req: Request, res: Response) => {
+  const id = req["user"].id;
+
+  const chats = Chat.findMany({
+    where: {
+      reciever: id,
+      senderId: id,
+    },
+  });
+
+  res.send(chats);
 };
