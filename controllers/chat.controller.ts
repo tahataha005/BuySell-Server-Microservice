@@ -23,10 +23,10 @@ export const saveMessage = async (message, payload) => {
   });
 };
 
-export const getUserChats = (req: Request, res: Response) => {
+export const getUserChats = async (req: Request, res: Response) => {
   const id = req["user"].id;
 
-  const chats = Chat.findMany({
+  const chats = await Chat.findMany({
     where: {
       OR: [
         {
@@ -39,5 +39,16 @@ export const getUserChats = (req: Request, res: Response) => {
     },
   });
 
-  res.send(chats);
+  console.log(chats);
+
+  res.send(
+    chats.map((chat) => {
+      return {
+        id: chat.id.toString().split("n")[0],
+        reciever: chat.recieverId?.toString().split("n")[0],
+        sender: chat.senderId?.toString().split("n")[0],
+        productId: chat.productId,
+      };
+    })
+  );
 };
