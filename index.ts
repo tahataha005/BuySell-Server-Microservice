@@ -3,6 +3,7 @@ import { createServer } from "http";
 import Express from "express";
 import cors from "cors";
 import { sign } from "jsonwebtoken";
+import { saveMessage } from "./controllers/chat.controller";
 
 const app = Express();
 
@@ -24,14 +25,12 @@ app.get("/token/:id", async (req, res) => {
 const server = createServer(app);
 
 const service = messagesConnection(server, {
-  port: 3001,
+  port: 3000,
   route: "/messages",
   timeout: 50000,
 });
 
-service.onSendMessage((message, room) => {
-  console.log("Message received", message);
-});
+service.onSendMessage(saveMessage);
 
 server.listen(3000, () => {
   console.log("Server started on port 3000");
