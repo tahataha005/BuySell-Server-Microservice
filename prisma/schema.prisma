@@ -1,0 +1,229 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ad_attributes {
+  id           BigInt     @id @default(autoincrement())
+  ad_id        BigInt
+  attribute_id BigInt
+  value        String?    @db.VarChar(255)
+  created_at   DateTime?  @db.Timestamp(0)
+  updated_at   DateTime?  @db.Timestamp(0)
+  ads          ads        @relation(fields: [ad_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "ad_attributes_ad_id_foreign")
+  attributes   attributes @relation(fields: [attribute_id], references: [id], onUpdate: NoAction, map: "ad_attributes_attribute_id_foreign")
+}
+
+model ad_images {
+  id         BigInt    @id @default(autoincrement())
+  ad_id      BigInt
+  name       String    @db.VarChar(255)
+  order      Int
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  ads        ads       @relation(fields: [ad_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "ad_images_ad_id_foreign")
+}
+
+model ad_statuses {
+  id   BigInt @id @default(autoincrement())
+  name String @db.VarChar(255)
+  ads  ads[]
+}
+
+model admins {
+  id         BigInt    @id @default(autoincrement())
+  first_name String    @db.VarChar(255)
+  last_name  String    @db.VarChar(255)
+  email      String    @unique(map: "admins_email_unique") @db.VarChar(255)
+  password   String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+}
+
+model ads {
+  id             BigInt          @id @default(autoincrement())
+  user_id        BigInt
+  subcategory_id BigInt
+  status_id      BigInt
+  title          String          @db.VarChar(255)
+  description    String
+  price          Decimal?        @db.Decimal(10, 2)
+  location       String?         @db.VarChar(255)
+  created_at     DateTime?       @db.Timestamp(0)
+  updated_at     DateTime?       @db.Timestamp(0)
+  ad_attributes  ad_attributes[]
+  ad_images      ad_images[]
+  ad_statuses    ad_statuses     @relation(fields: [status_id], references: [id], onUpdate: NoAction, map: "ads_status_id_foreign")
+  subcategories  subcategories   @relation(fields: [subcategory_id], references: [id], onUpdate: NoAction, map: "ads_subcategory_id_foreign")
+  users          users           @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "ads_user_id_foreign")
+}
+
+model attribute_options {
+  id                       BigInt                 @id @default(autoincrement())
+  subcategory_attribute_id BigInt
+  value                    String                 @db.VarChar(255)
+  created_at               DateTime?              @db.Timestamp(0)
+  updated_at               DateTime?              @db.Timestamp(0)
+  subcategory_attributes   subcategory_attributes @relation(fields: [subcategory_attribute_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "attribute_options_subcategory_attribute_id_foreign")
+}
+
+model attribute_types {
+  id         BigInt       @id @default(autoincrement())
+  name       String       @db.VarChar(255)
+  attributes attributes[]
+}
+
+model attributes {
+  id                     BigInt                   @id @default(autoincrement())
+  attribute_type_id      BigInt
+  name                   String                   @db.VarChar(255)
+  created_at             DateTime?                @db.Timestamp(0)
+  updated_at             DateTime?                @db.Timestamp(0)
+  ad_attributes          ad_attributes[]
+  attribute_types        attribute_types          @relation(fields: [attribute_type_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "attributes_attribute_type_id_foreign")
+  subcategory_attributes subcategory_attributes[]
+}
+
+model categories {
+  id            BigInt          @id @default(autoincrement())
+  name          String          @db.VarChar(255)
+  image         String          @db.VarChar(255)
+  active        Boolean         @default(false)
+  created_at    DateTime?       @db.Timestamp(0)
+  updated_at    DateTime?       @db.Timestamp(0)
+  subcategories subcategories[]
+}
+
+model companies {
+  id           BigInt    @id @default(autoincrement())
+  user_id      BigInt
+  banner_image String?   @db.VarChar(255)
+  description  String?
+  address      String?   @db.VarChar(255)
+  latitude     Decimal?  @db.Decimal(10, 8)
+  longitude    Decimal?  @db.Decimal(11, 8)
+  created_at   DateTime? @db.Timestamp(0)
+  updated_at   DateTime? @db.Timestamp(0)
+  users        users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "companies_user_id_foreign")
+}
+
+model failed_jobs {
+  id         BigInt   @id @default(autoincrement())
+  uuid       String   @unique(map: "failed_jobs_uuid_unique") @db.VarChar(255)
+  connection String
+  queue      String
+  payload    String
+  exception  String
+  failed_at  DateTime @default(now()) @db.Timestamp(0)
+}
+
+model job_batches {
+  id             String  @id @db.VarChar(255)
+  name           String  @db.VarChar(255)
+  total_jobs     Int
+  pending_jobs   Int
+  failed_jobs    Int
+  failed_job_ids String
+  options        String?
+  cancelled_at   Int?
+  created_at     Int
+  finished_at    Int?
+}
+
+model migrations {
+  id        Int    @id @default(autoincrement())
+  migration String @db.VarChar(255)
+  batch     Int
+}
+
+model password_reset_tokens {
+  email      String    @id @db.VarChar(255)
+  token      String    @db.VarChar(255)
+  created_at DateTime? @db.Timestamp(0)
+  users      users     @relation(fields: [email], references: [email], onDelete: NoAction, onUpdate: NoAction, map: "password_reset_tokens_email_foreign")
+}
+
+model subcategories {
+  id                     BigInt                   @id @default(autoincrement())
+  category_id            BigInt
+  name                   String                   @db.VarChar(255)
+  image                  String                   @db.VarChar(255)
+  active                 Boolean                  @default(false)
+  created_at             DateTime?                @db.Timestamp(0)
+  updated_at             DateTime?                @db.Timestamp(0)
+  ads                    ads[]
+  categories             categories               @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "subcategories_category_id_foreign")
+  subcategory_attributes subcategory_attributes[]
+}
+
+model subcategory_attributes {
+  id                BigInt              @id @default(autoincrement())
+  subcategory_id    BigInt
+  attribute_id      BigInt
+  has_options       Boolean             @default(false)
+  is_restricted     Boolean             @default(false)
+  is_required       Boolean             @default(true)
+  created_at        DateTime?           @db.Timestamp(0)
+  updated_at        DateTime?           @db.Timestamp(0)
+  attribute_options attribute_options[]
+  attributes        attributes          @relation(fields: [attribute_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "subcategory_attributes_attribute_id_foreign")
+  subcategories     subcategories       @relation(fields: [subcategory_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "subcategory_attributes_subcategory_id_foreign")
+}
+
+model user_statuses {
+  id    BigInt  @id @default(autoincrement())
+  name  String  @db.VarChar(255)
+  users users[]
+}
+
+model users {
+  id                    BigInt                 @id @default(autoincrement())
+  usertype_id           BigInt
+  status_id             BigInt
+  google_id             String?                @db.VarChar(255)
+  facebook_id           String?                @db.VarChar(255)
+  email                 String                 @unique(map: "users_email_unique") @db.VarChar(255)
+  password              String?                @db.VarChar(255)
+  name                  String                 @db.VarChar(255)
+  phone_number          String?                @db.VarChar(255)
+  profile_image         String?                @db.VarChar(255)
+  bio                   String?
+  created_at            DateTime?              @db.Timestamp(0)
+  updated_at            DateTime?              @db.Timestamp(0)
+  ads                   ads[]
+  companies             companies[]
+  password_reset_tokens password_reset_tokens?
+  user_statuses         user_statuses          @relation(fields: [status_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "users_status_id_foreign")
+  usertypes             usertypes              @relation(fields: [usertype_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "users_usertype_id_foreign")
+  chats                chats[]
+  messages             chat_messages[]
+}
+
+model usertypes {
+  id    BigInt  @id @default(autoincrement())
+  name  String  @db.VarChar(255)
+  users users[]
+}
+
+model chats {
+  id        BigInt   @id @default(autoincrement())
+  name      String
+  users     users[]
+  messages  chat_messages[]
+  productId String
+}
+
+model chat_messages {
+  id        BigInt   @id @default(autoincrement())
+  text      String
+  payload   String
+  chat      chats     @relation(fields: [chatId], references: [id])
+  chatId    BigInt
+  user    users     @relation(fields: [userId], references: [id])
+  userId  BigInt
+  createdAt DateTime @default(now())
+}

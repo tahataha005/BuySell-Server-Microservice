@@ -21,14 +21,16 @@ export const onSendMessage = async (socket: Socket) => {
   socket.on(
     "send-message",
     async (data: { to: string; message: string; token: string; payload }) => {
-      const { id }: any = await verifyToken(data.token);
+      const user: any = await verifyToken(data.token);
+
+      const id = user.sub ?? user.id;
 
       const { to, payload } = data;
 
       const date = new Date();
       const message = {
         user: id,
-        message: data.message,
+        content: data.message,
         createdAt: date.toISOString(),
         read: false,
       };
@@ -69,16 +71,7 @@ export const authenticateUser = async (socket: Socket) => {
     onlineUsers.push({ id, room: socket.id });
   }
 
-  console.log("User Joined", onlineUsers);
-
   io.emit("online", onlineUsers);
-  socket.on("error", (error) => {
-    console.error("Socket error:", error);
-  });
-
-  socket.on("disconnect", (reason) => {
-    console.log("Client disconnected", reason);
-  });
 };
 
 export const disconnectUser = async (socket: Socket) => {
@@ -87,8 +80,6 @@ export const disconnectUser = async (socket: Socket) => {
   const { id }: any = await verifyToken(token);
 
   setOnlineUsers(onlineUsers.filter((user) => user.id !== id));
-
-  console.log("User left", onlineUsers);
 
   io.emit("online", onlineUsers);
 };
