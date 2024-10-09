@@ -17,8 +17,8 @@ app.use(
 );
 
 app.use(Express.json());
-app.use(authRoutes);
-app.use(authMiddleware, chatsRoutes);
+app.use("/auth", authRoutes);
+app.use("/chats", authMiddleware, chatsRoutes);
 
 const server = createServer(app);
 
