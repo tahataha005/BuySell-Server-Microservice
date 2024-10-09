@@ -28,8 +28,14 @@ export const getUserChats = (req: Request, res: Response) => {
 
   const chats = Chat.findMany({
     where: {
-      reciever: id,
-      senderId: id,
+      OR: [
+        {
+          senderId: id,
+        },
+        {
+          recieverId: id,
+        },
+      ],
     },
   });
 
