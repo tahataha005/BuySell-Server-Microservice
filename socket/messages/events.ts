@@ -1,6 +1,7 @@
 import { Server, Socket } from "socket.io";
 import { verify } from "jsonwebtoken";
 import { service, onlineUsers, io, setOnlineUsers } from "../socket";
+import { v4 as uuid } from "uuid";
 
 export const verifyToken = async (token: string) => {
   try {
@@ -29,6 +30,7 @@ export const onSendMessage = async (socket: Socket) => {
 
       const date = new Date();
       const message = {
+        // id: uuid(),
         user: id,
         content: data.message,
         createdAt: date.toISOString(),
@@ -42,11 +44,23 @@ export const onSendMessage = async (socket: Socket) => {
       const self = onlineUsers.find((user) => user.id === id);
 
       if (onlineRecipient) {
-        io.to(onlineRecipient.room).emit("new-message", { message, payload });
+        io.to(onlineRecipient.room).emit("new-message", {
+          message,
+          payload: {
+            ...payload,
+            isSender: false,
+          },
+        });
       }
 
       if (self) {
-        io.to(self.room).emit("new-message", { message, payload });
+        io.to(self.room).emit("new-message", {
+          message,
+          payload: {
+            ...payload,
+            isSender: true,
+          },
+        });
       }
     }
   );
