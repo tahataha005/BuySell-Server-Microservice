@@ -31,7 +31,7 @@ export const onSendMessage = async (socket: Socket) => {
       const date = new Date();
       const message = {
         id: uuid(),
-        user: id,
+        user: parseInt(id),
         content: data.message,
         createdAt: date.toISOString(),
         read: false,
